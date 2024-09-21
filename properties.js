@@ -54,6 +54,7 @@ async function fetchRoomDetails(propertyId) {
     console.error(`Error fetching room details for property ${propertyId}:`, error);
     return null;
   }
+  console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
 }
 
 function createListingElement(property, roomDetails) {
@@ -118,6 +119,10 @@ function createListingElement(property, roomDetails) {
     </div>
   `;
   return template;
+
+  console.log('Property data:', JSON.stringify(property, null, 2));
+console.log('Room details:', JSON.stringify(roomDetails, null, 2));
+
 }
 
 async function populateListings() {
