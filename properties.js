@@ -121,13 +121,13 @@ function createListingElement(property, roomDetails) {
   
   template.innerHTML = `
     <div class="rental-card">
-      <a href="#" class="rental-card w-inline-block">
+      <a href="https://book.a1abeachvacay.com/${(property.name || '').replace(/\s+/g, '-')}" class="rental-card w-inline-block">
         <div class="card-top-2">
           <div class="room-quick-info">
             <div class="intro-card-stats">
               <div class="frame-28">
                 <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                <div class="text-5">${property.max_people || 'N/A'}</div>
+                <div class="text-5">${roomDetails.max_people || 'N/A'}</div>
               </div>
               <div class="frame-28">
                 <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
