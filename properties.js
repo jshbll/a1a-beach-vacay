@@ -145,7 +145,7 @@ function createListingElement(property, roomDetails) {
           
         <div class="pet-friendly-container" style="display: ${roomDetails?.pets_allowed !== true ? 'none' : 'block'};">
         <lottie-player
-            src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/6524583ac4f1a7a09822ef94_Pet%20Friendly%20(3).lottie"
+            src="https://lottie.host/9944fa0a-d390-4ab0-8356-c0c06db301c5/sOjSf0bTaI.lottie"
             background="transparent"
             speed="1"
             loop
