@@ -121,7 +121,7 @@ function createListingElement(property, roomDetails) {
   
   template.innerHTML = `
     <div class="rental-card">
-      <a href="https://book.a1abeachvacay.com/${(property.name || '').replace(/\s+/g, '-')}" class="rental-card w-inline-block">
+      <a href="https://book.a1abeachvacay.com/en/${(property.name || '').replace(/\s+/g, '-')}" class="rental-card w-inline-block">
         <div class="card-top-2">
           <div class="room-quick-info">
             <div class="intro-card-stats">
