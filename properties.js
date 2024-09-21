@@ -5,6 +5,28 @@ const LODGIFY_PROPERTIES_ENDPOINT = 'https://api.lodgify.com/v2/properties?wid=4
 const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 
 
+let loadingAnimation;
+
+function showLoader() {
+  const loaderContainer = document.getElementById('lottie-loader');
+  loaderContainer.style.display = 'block';
+  loadingAnimation = lottie.loadAnimation({
+    container: loaderContainer,
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    path: 'https://assets3.lottiefiles.com/packages/lf20_usmfx6bp.json' // You can replace this with your preferred Lottie animation
+  });
+}
+
+function hideLoader() {
+  const loaderContainer = document.getElementById('lottie-loader');
+  loaderContainer.style.display = 'none';
+  if (loadingAnimation) {
+    loadingAnimation.destroy();
+  }
+}
+
 function formatSleepingInfo(roomDetails) {
     if (roomDetails.amenities && roomDetails.amenities.sleeping) {
       return roomDetails.amenities.sleeping
@@ -140,11 +162,14 @@ console.log('Room details:', JSON.stringify(roomDetails, null, 2));
 
 async function populateListings() {
     console.log('Populating listings...');
+    showLoader(); // Show the loader before fetching listings
+  
     const listings = await fetchListingsFromLodgify();
     
     const listingsContainer = document.getElementById('listings-container');
     if (!listingsContainer) {
       console.error('Listings container not found');
+      hideLoader(); // Hide loader if there's an error
       return;
     }
   
@@ -165,6 +190,8 @@ async function populateListings() {
       console.log('No active listings found');
       listingsContainer.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
     }
+  
+    hideLoader(); // Hide the loader after all listings are processed
   }
 
 // Call this function when the DOM is fully loaded
