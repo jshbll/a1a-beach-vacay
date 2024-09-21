@@ -141,9 +141,8 @@ function createListingElement(property, roomDetails) {
               </div>
             </div>
           </div>
-          <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">`
+          <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">
           
-          const propertyCardHTML = `
   ${roomDetails?.pets_allowed === true ? `
 <!-- Pet Friendly Animation Container -->
         <div class="pet-friendly-container">
@@ -158,7 +157,7 @@ function createListingElement(property, roomDetails) {
         <div class="text-block-2">Pet Friendly</div>
         </div>
   ` : ''}
-`;`
+`;
 </div>
         <div class="card-info-3">
           <div class="frame-29">
