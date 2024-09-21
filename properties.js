@@ -92,7 +92,7 @@ function createListingElement(property, roomDetails) {
             </div>
             <div class="specs-wrapper">
               <div class="w-layout-hflex">
-                <div class="guests-bed-bath-icon number">${property.max_people || 'N/A'}</div>
+                <div class="guests-bed-bath-icon number">${roomDetails?.max_people || 'N/A'}</div>
                 <div class="guests-bed-bath-icon">Guests</div>
               </div>
               <div class="w-layout-hflex">
