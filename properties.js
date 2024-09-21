@@ -174,10 +174,11 @@ function createListingElement(property, roomDetails) {
       </a>
     </div>
   `;
+  console.log('Property data:', JSON.stringify(property, null, 2));
+  console.log('Room details:', JSON.stringify(roomDetails, null, 2));
   return template;
 
-  console.log('Property data:', JSON.stringify(property, null, 2));
-console.log('Room details:', JSON.stringify(roomDetails, null, 2));
+
 
 }
 
