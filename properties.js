@@ -143,9 +143,7 @@ function createListingElement(property, roomDetails) {
           </div>
           <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">
           
-  ${roomDetails?.pets_allowed === true ? `
-<!-- Pet Friendly Animation Container -->
-        <div class="pet-friendly-container">
+        <div class="pet-friendly-container" style="display: ${roomDetails?.pets_allowed !== true ? 'none' : 'block'};">
         <lottie-player
             src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/6524583ac4f1a7a09822ef94_Pet%20Friendly%20(3).lottie"
             background="transparent"
@@ -156,8 +154,6 @@ function createListingElement(property, roomDetails) {
         ></lottie-player>
         <div class="text-block-2">Pet Friendly</div>
         </div>
-  ` : ''}
-`;
 </div>
         <div class="card-info-3">
           <div class="frame-29">
