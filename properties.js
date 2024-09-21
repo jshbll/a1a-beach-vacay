@@ -4,6 +4,17 @@ const LODGIFY_API_KEY = 'wjexqnx5cj/YxHu8K9aSgQxR6+/1echUQQyh8sSNuxfAN/pDBAIFgya
 const LODGIFY_PROPERTIES_ENDPOINT = 'https://api.lodgify.com/v2/properties?wid=410037&includeCount=false&includeInOut=false&page=1&size=50';
 const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 
+
+function formatSleepingInfo(property) {
+    if (property.amenities && property.amenities.sleeping) {
+      return property.amenities.sleeping
+        .filter(bed => bed.name.includes('Bed') && bed.name !== 'SleepingBedLinen')
+        .map(bed => bed.text)
+        .join('<br>'); // Use <br> for line breaks in HTML
+    }
+    return 'N/A';
+  }
+  
 async function fetchWithRetry(url, options, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -100,7 +111,7 @@ function createListingElement(property, roomDetails) {
                 <div class="guests-bed-bath-icon">Bedrooms</div>
               </div>
               <div class="w-layout-hflex">
-                <div class="guests-bed-bath-icon number">${roomDetails?.beds || property.bedrooms || 'N/A'}</div>
+                <div class="guests-bed-bath-icon number"><span class="bed-list">${formatSleepingInfo(property)}</span></div>
                 <div class="guests-bed-bath-icon">Beds</div>
               </div>
               <div class="w-layout-hflex">
