@@ -5,9 +5,9 @@ const LODGIFY_PROPERTIES_ENDPOINT = 'https://api.lodgify.com/v2/properties?wid=4
 const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 
 
-function formatSleepingInfo(property) {
-    if (property.amenities && property.amenities.sleeping) {
-      return property.amenities.sleeping
+function formatSleepingInfo(roomDetails) {
+    if (roomDetails.amenities && roomDetails.amenities.sleeping) {
+      return roomDetails.amenities.sleeping
         .filter(bed => bed.name.includes('Bed') && bed.name !== 'SleepingBedLinen')
         .map(bed => bed.text)
         .join('<br>'); // Use <br> for line breaks in HTML
