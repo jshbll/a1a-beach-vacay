@@ -1,7 +1,8 @@
-// Complete Lodgify API Integration Script for Webflow
+// Updated Lodgify API Integration with Room Details Fetch
 
 const LODGIFY_API_KEY = 'wjexqnx5cj/YxHu8K9aSgQxR6+/1echUQQyh8sSNuxfAN/pDBAIFgyaoxkBDExgW';
 const LODGIFY_PROPERTIES_ENDPOINT = 'https://api.lodgify.com/v2/properties?wid=410037&includeCount=false&includeInOut=false&page=1&size=50';
+const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 
 async function fetchWithRetry(url, options, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
@@ -46,7 +47,7 @@ async function fetchRoomDetails(propertyId) {
   };
 
   try {
-    const data = await fetchWithRetry(`${LODGIFY_ROOMS_ENDPOINT}${propertyId}`, options);
+    const data = await fetchWithRetry(`${LODGIFY_ROOMS_ENDPOINT}${propertyId}/rooms`, options);
     console.log(`Fetched room details for property ${propertyId}:`, data);
     return data[0]; // Assuming we want the first room's details
   } catch (error) {
@@ -68,15 +69,15 @@ function createListingElement(property, roomDetails) {
             <div class="intro-card-stats">
               <div class="frame-28">
                 <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                <div class="text-5">${roomDetails?.capacity || 'N/A'}</div>
+                <div class="text-5">${property.max_people || 'N/A'}</div>
               </div>
               <div class="frame-28">
                 <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                <div class="text-5">${roomDetails?.bedrooms || 'N/A'}</div>
+                <div class="text-5">${roomDetails?.bedrooms || property.bedrooms || 'N/A'}</div>
               </div>
               <div class="frame-28">
                 <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf78cadfc271a34a9e06_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                <div class="text-5">${roomDetails?.beds || 'N/A'}</div>
+                <div class="text-5">${roomDetails?.beds || property.bedrooms || 'N/A'}</div>
               </div>
             </div>
           </div>
@@ -90,19 +91,19 @@ function createListingElement(property, roomDetails) {
             </div>
             <div class="specs-wrapper">
               <div class="w-layout-hflex">
-                <div class="guests-bed-bath-icon number">${roomDetails?.capacity || 'N/A'}</div>
+                <div class="guests-bed-bath-icon number">${property.max_people || 'N/A'}</div>
                 <div class="guests-bed-bath-icon">Guests</div>
               </div>
               <div class="w-layout-hflex">
-                <div class="guests-bed-bath-icon number">${roomDetails?.bedrooms || 'N/A'}</div>
+                <div class="guests-bed-bath-icon number">${roomDetails?.bedrooms || property.bedrooms || 'N/A'}</div>
                 <div class="guests-bed-bath-icon">Bedrooms</div>
               </div>
               <div class="w-layout-hflex">
-                <div class="guests-bed-bath-icon number">${roomDetails?.beds || 'N/A'}</div>
+                <div class="guests-bed-bath-icon number">${roomDetails?.beds || property.bedrooms || 'N/A'}</div>
                 <div class="guests-bed-bath-icon">Beds</div>
               </div>
               <div class="w-layout-hflex">
-                <div class="guests-bed-bath-icon number">${roomDetails?.bathrooms || 'N/A'}</div>
+                <div class="guests-bed-bath-icon number">${roomDetails?.bathrooms || property.bathrooms || 'N/A'}</div>
                 <div class="guests-bed-bath-icon">Bathrooms</div>
               </div>
             </div>
@@ -132,14 +133,15 @@ async function populateListings() {
   listingsContainer.innerHTML = '';
   if (listings.length > 0) {
     console.log(`Populating ${listings.length} listings`);
-    listings.forEach(listing => {
+    for (const listing of listings) {
       try {
-        const listingElement = createListingElement(listing);
+        const roomDetails = await fetchRoomDetails(listing.id);
+        const listingElement = createListingElement(listing, roomDetails);
         listingsContainer.appendChild(listingElement);
       } catch (error) {
         console.error('Error creating listing element:', error);
       }
-    });
+    }
     console.log('Finished populating listings.');
   } else {
     console.log('No listings found');
@@ -147,15 +149,10 @@ async function populateListings() {
   }
 }
 
-// Initialize the script
-function initializeLodgifyIntegration() {
-  console.log('Initializing Lodgify integration...');
-  populateListings();
-}
-
 // Call this function when the DOM is fully loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeLodgifyIntegration);
-} else {
-  initializeLodgifyIntegration();
+document.addEventListener('DOMContentLoaded', populateListings);
+
+// Additional check in case the script loads after DOMContentLoaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  populateListings();
 }
