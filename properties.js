@@ -37,26 +37,8 @@ async function fetchListingsFromLodgify() {
   }
 }
 
-async function fetchRoomDetails(propertyId) {
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      'X-ApiKey': LODGIFY_API_KEY
-    }
-  };
 
-  try {
-    const data = await fetchWithRetry(`${LODGIFY_ROOMS_ENDPOINT}${propertyId}/rooms`, options);
-    console.log(`Fetched room details for property ${propertyId}:`, data);
-    return data[0]; // Assuming we want the first room's details
-  } catch (error) {
-    console.error(`Error fetching room details for property ${propertyId}:`, error);
-    return null;
-  }
-}
-
-function createListingElement(property, roomDetails) {
+function createListingElement(property) {
     console.log('Creating listing element for:', property);
     const template = document.createElement('div');
     template.className = 'rental-item w-dyn-item';
@@ -73,11 +55,11 @@ function createListingElement(property, roomDetails) {
                 </div>
                 <div class="frame-28">
                   <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                  <div class="text-5">${roomDetails?.bedrooms || 'N/A'}</div>
+                  <div class="text-5">${property.bedrooms || 'N/A'}</div>
                 </div>
                 <div class="frame-28">
                   <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf78cadfc271a34a9e06_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                  <div class="text-5">${roomDetails?.beds || 'N/A'}</div>
+                  <div class="text-5">${property.bedrooms || 'N/A'}</div>
                 </div>
               </div>
             </div>
@@ -95,15 +77,15 @@ function createListingElement(property, roomDetails) {
                   <div class="guests-bed-bath-icon">Guests</div>
                 </div>
                 <div class="w-layout-hflex">
-                  <div class="guests-bed-bath-icon number">${roomDetails?.bedrooms || 'N/A'}</div>
+                  <div class="guests-bed-bath-icon number">${property.bedrooms || 'N/A'}</div>
                   <div class="guests-bed-bath-icon">Bedrooms</div>
                 </div>
                 <div class="w-layout-hflex">
-                  <div class="guests-bed-bath-icon number">${roomDetails?.beds || 'N/A'}</div>
+                  <div class="guests-bed-bath-icon number">${property.bedrooms || 'N/A'}</div>
                   <div class="guests-bed-bath-icon">Beds</div>
                 </div>
                 <div class="w-layout-hflex">
-                  <div class="guests-bed-bath-icon number">${roomDetails?.bathrooms || 'N/A'}</div>
+                  <div class="guests-bed-bath-icon number">${property.bathrooms || 'N/A'}</div>
                   <div class="guests-bed-bath-icon">Bathrooms</div>
                 </div>
               </div>
@@ -135,7 +117,6 @@ async function populateListings() {
     console.log(`Populating ${listings.length} listings`);
     for (const listing of listings) {
       try {
-        const roomDetails = await fetchRoomDetails(listing.id);
         const listingElement = createListingElement(listing, roomDetails);
         listingsContainer.appendChild(listingElement);
       } catch (error) {
