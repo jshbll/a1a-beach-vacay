@@ -8,24 +8,45 @@ const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 let loadingAnimation;
 
 function showLoader() {
-  const loaderContainer = document.getElementById('lottie-loader');
-  loaderContainer.style.display = 'block';
-  loadingAnimation = lottie.loadAnimation({
-    container: loaderContainer,
-    renderer: 'svg',
-    loop: true,
-    autoplay: true,
-    path: 'https://assets3.lottiefiles.com/packages/lf20_usmfx6bp.json' // You can replace this with your preferred Lottie animation
-  });
-}
-
-function hideLoader() {
-  const loaderContainer = document.getElementById('lottie-loader');
-  loaderContainer.style.display = 'none';
-  if (loadingAnimation) {
-    loadingAnimation.destroy();
+    const loaderContainer = document.getElementById('lottie-loader');
+    if (!loaderContainer) {
+      console.error('Loader container not found. Creating one...');
+      const newLoader = document.createElement('div');
+      newLoader.id = 'lottie-loader';
+      newLoader.style.width = '200px';
+      newLoader.style.height = '200px';
+      newLoader.style.margin = 'auto';
+      newLoader.style.position = 'fixed';
+      newLoader.style.top = '50%';
+      newLoader.style.left = '50%';
+      newLoader.style.transform = 'translate(-50%, -50%)';
+      newLoader.style.zIndex = '1000';
+      document.body.appendChild(newLoader);
+    }
+    
+    const updatedLoaderContainer = document.getElementById('lottie-loader');
+    updatedLoaderContainer.style.display = 'block';
+    loadingAnimation = lottie.loadAnimation({
+      container: updatedLoaderContainer,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'https://assets3.lottiefiles.com/packages/lf20_usmfx6bp.json'
+    });
   }
-}
+
+  function hideLoader() {
+    const loaderContainer = document.getElementById('lottie-loader');
+    if (loaderContainer) {
+      loaderContainer.style.display = 'none';
+      if (loadingAnimation) {
+        loadingAnimation.destroy();
+      }
+    }
+  }
+  if (typeof lottie === 'undefined') {
+    console.error('Lottie library not loaded. Please check your script inclusions.');
+  }
 
 function formatSleepingInfo(roomDetails) {
     if (roomDetails.amenities && roomDetails.amenities.sleeping) {
@@ -195,7 +216,9 @@ async function populateListings() {
   }
 
 // Call this function when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', populateListings);
+document.addEventListener('DOMContentLoaded', function() {
+    populateListings();
+  });
 
 // Additional check in case the script loads after DOMContentLoaded
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
