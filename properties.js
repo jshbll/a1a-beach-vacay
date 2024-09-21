@@ -47,6 +47,8 @@ function showLoader() {
   if (typeof lottie === 'undefined') {
     console.error('Lottie library not loaded. Please check your script inclusions.');
   }
+  console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
+
 
 function formatSleepingInfo(roomDetails) {
     if (roomDetails.amenities && roomDetails.amenities.sleeping) {
@@ -111,16 +113,9 @@ async function fetchRoomDetails(propertyId) {
     console.error(`Error fetching room details for property ${propertyId}:`, error);
     return null;
   }
-  console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
 }
 
-  var petFriendlyAnimation = lottie.loadAnimation({
-    container: document.getElementById('pet-friendly-animation'), // the DOM element to render
-    renderer: 'svg', // render as SVG
-    loop: true, // animation loops
-    autoplay: true, // animation starts automatically
-    path: 'https://lottie.host/98d60540-aa92-4b4d-9380-855820aceeb5/Dc1TUV7Sds.json' // path to your Lottie JSON file
-  });
+
 
 function createListingElement(property, roomDetails) {
   console.log('Creating listing element for:', property);
@@ -194,7 +189,14 @@ function createListingElement(property, roomDetails) {
 
 
 }
-
+const petFriendlyAnimation = lottie.loadAnimation({
+    container: document.getElementById('pet-friendly-animation'), // the DOM element to render
+    renderer: 'svg', // render as SVG
+    loop: true, // animation loops
+    autoplay: true, // animation starts automatically
+    path: 'https://lottie.host/98d60540-aa92-4b4d-9380-855820aceeb5/Dc1TUV7Sds.json' // path to your Lottie JSON file
+  });
+  
 async function populateListings() {
     console.log('Populating listings...');
     showLoader(); // Show the loader before fetching listings
