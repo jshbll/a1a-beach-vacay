@@ -46,7 +46,7 @@ async function fetchRoomDetails(propertyId) {
   };
 
   try {
-    const data = await fetchWithRetry(`${LODGIFY_ROOMS_ENDPOINT}${propertyId}/rooms`, options);
+    const data = await fetchWithRetry(`${LODGIFY_ROOMS_ENDPOINT}${propertyId}`, options);
     console.log(`Fetched room details for property ${propertyId}:`, data);
     return data[0]; // Assuming we want the first room's details
   } catch (error) {
