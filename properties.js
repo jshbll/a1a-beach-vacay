@@ -35,6 +35,7 @@ function showLoader() {
     });
   }
 
+
   function hideLoader() {
     const loaderContainer = document.getElementById('lottie-loader');
     if (loaderContainer) {
@@ -143,7 +144,7 @@ function createListingElement(property, roomDetails) {
           </div>
           <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">
           
-        <div class="pet-friendly-container" style="display: ${roomDetails?.pets_allowed !== true ? 'none' : 'block'};">
+        <div class="pet-friendly-container">
   <div id="pet-friendly-animation" class="lottie-animation"></div>
         <div class="text-block-2">Pet Friendly</div>
         </div>
