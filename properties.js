@@ -112,7 +112,6 @@ function createListingElement(property, roomDetails) {
               </div>
               <div class="w-layout-hflex">
                 <div class="guests-bed-bath-icon number"><span class="bed-list">${formatSleepingInfo(roomDetails)}</span></div>
-                <div class="guests-bed-bath-icon">Beds</div>
               </div>
               <div class="w-layout-hflex">
                 <div class="guests-bed-bath-icon number">${roomDetails?.bathrooms || property.bathrooms || 'N/A'}</div>
