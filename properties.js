@@ -47,7 +47,6 @@ function showLoader() {
   if (typeof lottie === 'undefined') {
     console.error('Lottie library not loaded. Please check your script inclusions.');
   }
-  console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
 
 
 function formatSleepingInfo(roomDetails) {
@@ -196,7 +195,7 @@ const petFriendlyAnimation = lottie.loadAnimation({
     autoplay: true, // animation starts automatically
     path: 'https://lottie.host/98d60540-aa92-4b4d-9380-855820aceeb5/Dc1TUV7Sds.json' // path to your Lottie JSON file
   });
-  
+
 async function populateListings() {
     console.log('Populating listings...');
     showLoader(); // Show the loader before fetching listings
@@ -242,3 +241,4 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 console.log('All listings active status:', data.items.map(item => item.is_active));
+console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
