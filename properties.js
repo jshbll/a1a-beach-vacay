@@ -29,24 +29,27 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
 }
 
 async function fetchListingsFromLodgify() {
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      'X-ApiKey': LODGIFY_API_KEY
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-ApiKey': LODGIFY_API_KEY
+      }
+    };
+  
+    try {
+      console.log('Fetching listings from Lodgify...');
+      const data = await fetchWithRetry(LODGIFY_PROPERTIES_ENDPOINT, options);
+      console.log('Fetched listings:', data);
+      // Filter active listings
+      const activeListings = data.items.filter(listing => listing.is_active === true);
+      console.log('Active listings:', activeListings.length);
+      return activeListings;
+    } catch (error) {
+      console.error('Error fetching listings from Lodgify:', error);
+      return [];
     }
-  };
-
-  try {
-    console.log('Fetching listings from Lodgify...');
-    const data = await fetchWithRetry(LODGIFY_PROPERTIES_ENDPOINT, options);
-    console.log('Fetched listings:', data);
-    return data.items; // Assuming the listings are in an 'items' array
-  } catch (error) {
-    console.error('Error fetching listings from Lodgify:', error);
-    return [];
   }
-}
 
 async function fetchRoomDetails(propertyId) {
   const options = {
@@ -136,33 +139,33 @@ console.log('Room details:', JSON.stringify(roomDetails, null, 2));
 }
 
 async function populateListings() {
-  console.log('Populating listings...');
-  const listings = await fetchListingsFromLodgify();
-  
-  const listingsContainer = document.getElementById('listings-container');
-  if (!listingsContainer) {
-    console.error('Listings container not found');
-    return;
-  }
-
-  listingsContainer.innerHTML = '';
-  if (listings.length > 0) {
-    console.log(`Populating ${listings.length} listings`);
-    for (const listing of listings) {
-      try {
-        const roomDetails = await fetchRoomDetails(listing.id);
-        const listingElement = createListingElement(listing, roomDetails);
-        listingsContainer.appendChild(listingElement);
-      } catch (error) {
-        console.error('Error creating listing element:', error);
-      }
+    console.log('Populating listings...');
+    const listings = await fetchListingsFromLodgify();
+    
+    const listingsContainer = document.getElementById('listings-container');
+    if (!listingsContainer) {
+      console.error('Listings container not found');
+      return;
     }
-    console.log('Finished populating listings.');
-  } else {
-    console.log('No listings found');
-    listingsContainer.innerHTML = '<p>No listings available at the moment. Please check back later.</p>';
+  
+    listingsContainer.innerHTML = '';
+    if (listings.length > 0) {
+      console.log(`Populating ${listings.length} active listings`);
+      for (const listing of listings) {
+        try {
+          const roomDetails = await fetchRoomDetails(listing.id);
+          const listingElement = createListingElement(listing, roomDetails);
+          listingsContainer.appendChild(listingElement);
+        } catch (error) {
+          console.error('Error creating listing element:', error);
+        }
+      }
+      console.log('Finished populating active listings.');
+    } else {
+      console.log('No active listings found');
+      listingsContainer.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
+    }
   }
-}
 
 // Call this function when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', populateListings);
@@ -171,3 +174,5 @@ document.addEventListener('DOMContentLoaded', populateListings);
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
   populateListings();
 }
+
+console.log('All listings active status:', data.items.map(item => item.is_active));
