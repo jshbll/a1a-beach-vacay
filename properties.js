@@ -1,8 +1,7 @@
-// Updated Lodgify API Integration with Separate Room Details Fetch
+// Complete Lodgify API Integration Script for Webflow
 
 const LODGIFY_API_KEY = 'wjexqnx5cj/YxHu8K9aSgQxR6+/1echUQQyh8sSNuxfAN/pDBAIFgyaoxkBDExgW';
 const LODGIFY_PROPERTIES_ENDPOINT = 'https://api.lodgify.com/v2/properties?wid=410037&includeCount=false&includeInOut=false&page=1&size=50';
-const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 
 async function fetchWithRetry(url, options, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
@@ -37,70 +36,69 @@ async function fetchListingsFromLodgify() {
   }
 }
 
-
 function createListingElement(property) {
-    console.log('Creating listing element for:', property);
-    const template = document.createElement('div');
-    template.className = 'rental-item w-dyn-item';
-    
-    template.innerHTML = `
-      <div class="rental-card">
-        <a href="#" class="rental-card w-inline-block">
-          <div class="card-top-2">
-            <div class="room-quick-info">
-              <div class="intro-card-stats">
-                <div class="frame-28">
-                  <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                  <div class="text-5">${property.max_people || 'N/A'}</div>
-                </div>
-                <div class="frame-28">
-                  <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                  <div class="text-5">${property.bedrooms || 'N/A'}</div>
-                </div>
-                <div class="frame-28">
-                  <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf78cadfc271a34a9e06_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                  <div class="text-5">${property.bedrooms || 'N/A'}</div>
-                </div>
+  console.log('Creating listing element for:', property);
+  const template = document.createElement('div');
+  template.className = 'rental-item w-dyn-item';
+  
+  template.innerHTML = `
+    <div class="rental-card">
+      <a href="#" class="rental-card w-inline-block">
+        <div class="card-top-2">
+          <div class="room-quick-info">
+            <div class="intro-card-stats">
+              <div class="frame-28">
+                <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
+                <div class="text-5">${property.max_people || 'N/A'}</div>
               </div>
-            </div>
-            <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">
-          </div>
-          <div class="card-info-3">
-            <div class="frame-29">
-              <div class="frame-30">
-                <h2 class="property-name truncate">${property.name || 'Unnamed Property'}</h2>
-                <div class="property-type">${property.name || ''}</div>
+              <div class="frame-28">
+                <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
+                <div class="text-5">${property.bedrooms || 'N/A'}</div>
               </div>
-              <div class="specs-wrapper">
-                <div class="w-layout-hflex">
-                  <div class="guests-bed-bath-icon number">${property.max_people || 'N/A'}</div>
-                  <div class="guests-bed-bath-icon">Guests</div>
-                </div>
-                <div class="w-layout-hflex">
-                  <div class="guests-bed-bath-icon number">${property.bedrooms || 'N/A'}</div>
-                  <div class="guests-bed-bath-icon">Bedrooms</div>
-                </div>
-                <div class="w-layout-hflex">
-                  <div class="guests-bed-bath-icon number">${property.bedrooms || 'N/A'}</div>
-                  <div class="guests-bed-bath-icon">Beds</div>
-                </div>
-                <div class="w-layout-hflex">
-                  <div class="guests-bed-bath-icon number">${property.bathrooms || 'N/A'}</div>
-                  <div class="guests-bed-bath-icon">Bathrooms</div>
-                </div>
+              <div class="frame-28">
+                <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf78cadfc271a34a9e06_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
+                <div class="text-5">${property.bedrooms || 'N/A'}</div>
               </div>
-            </div>
-            <div class="intro-card-price">
-              <div class="price-text">$</div>
-              <div class="price-text">${property.min_price ? Math.round(property.min_price) : 'N/A'}</div>
-              <div class="price-text unit-text">/night</div>
             </div>
           </div>
-        </a>
-      </div>
-    `;
-    return template;
-  }
+          <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">
+        </div>
+        <div class="card-info-3">
+          <div class="frame-29">
+            <div class="frame-30">
+              <h2 class="property-name truncate">${property.name || 'Unnamed Property'}</h2>
+              <div class="property-type">${property.name || ''}</div>
+            </div>
+            <div class="specs-wrapper">
+              <div class="w-layout-hflex">
+                <div class="guests-bed-bath-icon number">${property.max_people || 'N/A'}</div>
+                <div class="guests-bed-bath-icon">Guests</div>
+              </div>
+              <div class="w-layout-hflex">
+                <div class="guests-bed-bath-icon number">${property.bedrooms || 'N/A'}</div>
+                <div class="guests-bed-bath-icon">Bedrooms</div>
+              </div>
+              <div class="w-layout-hflex">
+                <div class="guests-bed-bath-icon number">${property.bedrooms || 'N/A'}</div>
+                <div class="guests-bed-bath-icon">Beds</div>
+              </div>
+              <div class="w-layout-hflex">
+                <div class="guests-bed-bath-icon number">${property.bathrooms || 'N/A'}</div>
+                <div class="guests-bed-bath-icon">Bathrooms</div>
+              </div>
+            </div>
+          </div>
+          <div class="intro-card-price">
+            <div class="price-text">$</div>
+            <div class="price-text">${property.min_price ? Math.round(property.min_price) : 'N/A'}</div>
+            <div class="price-text unit-text">/night</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  `;
+  return template;
+}
 
 async function populateListings() {
   console.log('Populating listings...');
@@ -115,14 +113,14 @@ async function populateListings() {
   listingsContainer.innerHTML = '';
   if (listings.length > 0) {
     console.log(`Populating ${listings.length} listings`);
-    for (const listing of listings) {
+    listings.forEach(listing => {
       try {
-        const listingElement = createListingElement(listing, roomDetails);
+        const listingElement = createListingElement(listing);
         listingsContainer.appendChild(listingElement);
       } catch (error) {
         console.error('Error creating listing element:', error);
       }
-    }
+    });
     console.log('Finished populating listings.');
   } else {
     console.log('No listings found');
@@ -130,10 +128,15 @@ async function populateListings() {
   }
 }
 
-// Call this function when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', populateListings);
-
-// Additional check in case the script loads after DOMContentLoaded
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
+// Initialize the script
+function initializeLodgifyIntegration() {
+  console.log('Initializing Lodgify integration...');
   populateListings();
+}
+
+// Call this function when the DOM is fully loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeLodgifyIntegration);
+} else {
+  initializeLodgifyIntegration();
 }
