@@ -48,7 +48,6 @@ function showLoader() {
   if (typeof lottie === 'undefined') {
     console.error('Lottie library not loaded. Please check your script inclusions.');
   }
-  console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
 
 
 function formatSleepingInfo(roomDetails) {
@@ -90,11 +89,12 @@ async function fetchListingsFromLodgify() {
       // Filter active listings
       const activeListings = data.items.filter(listing => listing.is_active === true);
       console.log('Active listings:', activeListings.length);
+      console.log('All listings active status:', data.items.map(item => item.is_active));
       return activeListings;
     } catch (error) {
       console.error('Error fetching listings from Lodgify:', error);
       return [];
-    }
+    }    
   }
 
 async function fetchRoomDetails(propertyId) {
@@ -112,6 +112,7 @@ async function fetchRoomDetails(propertyId) {
     return data[0]; // Assuming we want the first room's details
   } catch (error) {
     console.error(`Error fetching room details for property ${propertyId}:`, error);
+    console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
     return null;
   }
 }
@@ -145,10 +146,6 @@ function createListingElement(property, roomDetails) {
           </div>
           <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">
           
-<<<<<<< HEAD
-        <div class="pet-friendly-container">
-  <div id="pet-friendly-animation" class="lottie-animation"></div>
-=======
         <div class="pet-friendly-container" style="display: ${roomDetails?.pets_allowed !== true ? 'none' : 'block'};">
         <lottie-player
             src="https://lottie.host/9944fa0a-d390-4ab0-8356-c0c06db301c5/sOjSf0bTaI.lottie"
@@ -158,7 +155,6 @@ function createListingElement(property, roomDetails) {
             autoplay
             style="width: 50px; height: 50px;"
         ></lottie-player>
->>>>>>> parent of 4701905 (updated lottie)
         <div class="text-block-2">Pet Friendly</div>
         </div>
 </div>
