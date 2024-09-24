@@ -119,81 +119,97 @@ async function fetchRoomDetails(propertyId) {
 }
 
 
-function createListingElement(property, roomDetails) {
-  console.log('Creating listing element for:', property);
+function createListingElement(listing) {
   const template = document.createElement('div');
   template.className = 'rental-item w-dyn-item';
-  
   template.innerHTML = `
       <div class="rental-card">
-          <a href="https://book.a1abeachvacay.com/en/${(property.name || '').replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9\-]/g, '')}" class="rental-card w-inline-block">
+          <a href="https://book.a1abeachvacay.com/en/${(listing.name || '').replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9\-]/g, '')}" class="rental-card w-inline-block">
               <div class="card-top-2">
                   <div class="room-quick-info">
                       <div class="intro-card-stats">
-                          <div class="frame-28">
-                              <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                              <div class="text-5">${roomDetails.max_people || 'N/A'}</div>
-                          </div>
-                          <div class="frame-28">
-                              <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                              <div class="text-5">${roomDetails?.bedrooms || property.bedrooms || 'N/A'}</div>
-                          </div>
-                          <div class="frame-28">
-                              <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf78cadfc271a34a9e06_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-                              <div class="text-5">${roomDetails?.beds || property.bedrooms || 'N/A'}</div>
-                          </div>
+                          <!-- Placeholder stats -->
                       </div>
                   </div>
-                  <img width="424.5487365722656" height="350" alt="" src="${property.image_url || ''}" loading="lazy" class="rental-image-2 static">
-                  
-                  <div class="pet-friendly-container" style="display: ${roomDetails?.pets_allowed !== true ? 'none' : 'block'};">
-                      <lottie-player
-                          src="https://lottie.host/98d60540-aa92-4b4d-9380-855820aceeb5/Dc1TUV7Sds.json"
-                          background="transparent"
-                          speed="1"
-                          loop
-                          autoplay
-                          style="width: 90px; height: 90px;"
-                      ></lottie-player>
-                      <div class="text-block-2">Pet Friendly</div>
-                  </div>
+                  <img width="424.5487365722656" height="350" alt="" data-src="${listing.image_url || ''}" class="rental-image-2 static" loading="lazy">
               </div>
               <div class="card-info-3">
-                  <div class="frame-29">
-                      <div class="frame-30">
-                          <h2 class="property-name truncate">${property.name || 'Unnamed Property'}</h2>
-                          <div class="property-type">${property.name || ''}</div>
-                      </div>
-                      <div class="specs-wrapper">
-                          <div class="w-layout-hflex">
-                              <div class="guests-bed-bath-icon number">${roomDetails?.max_people || 'N/A'}</div>
-                              <div class="guests-bed-bath-icon">Guests</div>
-                          </div>
-                          <div class="w-layout-hflex">
-                              <div class="guests-bed-bath-icon number">${roomDetails?.bedrooms || property.bedrooms || 'N/A'}</div>
-                              <div class="guests-bed-bath-icon">Bedrooms</div>
-                          </div>
-                          <div class="w-layout-hflex">
-                              <div class="guests-bed-bath-icon number"><span class="bed-list">${formatSleepingInfo(roomDetails)}</span></div>
-                          </div>
-                          <div class="w-layout-hflex">
-                              <div class="guests-bed-bath-icon number">${roomDetails?.bathrooms || property.bathrooms || 'N/A'}</div>
-                              <div class="guests-bed-bath-icon">Bathrooms</div>
-                          </div>
-                      </div>
-                  </div>
-                  <div class="intro-card-price">
-                      <div class="price-text">$</div>
-                      <div class="price-text">${property.min_price ? Math.round(property.min_price) : 'N/A'}</div>
-                      <div class="price-text unit-text">/night</div>
-                  </div>
+                  <!-- Placeholder info -->
               </div>
           </a>
       </div>
   `;
-  console.log('Property data:', JSON.stringify(property, null, 2));
-  console.log('Room details:', JSON.stringify(roomDetails, null, 2));
   return template;
+}
+function populateListingData(element, listing, roomDetails) {
+  const nameElement = element.querySelector('.property-name');
+  if (nameElement) nameElement.textContent = listing.name || 'Unnamed Property';
+
+  const imageElement = element.querySelector('.rental-image-2');
+  if (imageElement) {
+      imageElement.src = imageElement.dataset.src;
+      imageElement.removeAttribute('data-src');
+  }
+
+  // Populate other data fields
+  const statsContainer = element.querySelector('.intro-card-stats');
+  if (statsContainer) {
+      statsContainer.innerHTML = `
+          <div class="frame-28">
+              <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
+              <div class="text-5">${listing.max_people || 'N/A'}</div>
+          </div>
+          <div class="frame-28">
+              <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
+              <div class="text-5">${roomDetails?.bedrooms || listing.bedrooms || 'N/A'}</div>
+          </div>
+          <div class="frame-28">
+              <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf78cadfc271a34a9e06_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
+              <div class="text-5">${roomDetails?.beds || listing.bedrooms || 'N/A'}</div>
+          </div>
+      `;
+  }
+
+  const cardInfo = element.querySelector('.card-info-3');
+  if (cardInfo) {
+      cardInfo.innerHTML = `
+          <div class="frame-29">
+              <div class="frame-30">
+                  <h2 class="property-name truncate">${listing.name || 'Unnamed Property'}</h2>
+                  <div class="property-type">${listing.name || ''}</div>
+              </div>
+              <div class="specs-wrapper">
+                  <div class="w-layout-hflex">
+                      <div class="guests-bed-bath-icon number">${listing.max_people || 'N/A'}</div>
+                      <div class="guests-bed-bath-icon">Guests</div>
+                  </div>
+                  <div class="w-layout-hflex">
+                      <div class="guests-bed-bath-icon number">${roomDetails?.bedrooms || listing.bedrooms || 'N/A'}</div>
+                      <div class="guests-bed-bath-icon">Bedrooms</div>
+                  </div>
+                  <div class="w-layout-hflex">
+                      <div class="guests-bed-bath-icon number"><span class="bed-list">${formatSleepingInfo(roomDetails)}</span></div>
+                  </div>
+                  <div class="w-layout-hflex">
+                      <div class="guests-bed-bath-icon number">${roomDetails?.bathrooms || listing.bathrooms || 'N/A'}</div>
+                      <div class="guests-bed-bath-icon">Bathrooms</div>
+                  </div>
+              </div>
+          </div>
+          <div class="intro-card-price">
+              <div class="price-text">$</div>
+              <div class="price-text">${listing.min_price ? Math.round(listing.min_price) : 'N/A'}</div>
+              <div class="price-text unit-text">/night</div>
+          </div>
+      `;
+  }
+
+  const petFriendlyContainer = element.querySelector('.pet-friendly-container');
+  if (petFriendlyContainer) {
+      petFriendlyContainer.style.display = roomDetails?.pets_allowed ? 'block' : 'none';
+  }
+
+  console.log('Populated data for listing:', listing.id);
 }
 
 async function populateListings() {
@@ -201,37 +217,93 @@ async function populateListings() {
   showLoader();
 
   const listings = await fetchListingsFromLodgify();
-  
   const listingsContainer = document.getElementById('listings-container');
+  
   if (!listingsContainer) {
       console.error('Listings container not found');
       hideLoader();
       return;
   }
 
-  listingsContainer.innerHTML = '';
-  if (listings.length > 0) {
-      console.log(`Populating ${listings.length} active listings`);
-      for (const listing of listings) {
-          try {
-              const roomDetails = await fetchRoomDetails(listing.id);
-              const listingElement = createListingElement(listing, roomDetails);
-              listingsContainer.appendChild(listingElement);
-          } catch (error) {
-              console.error('Error creating listing element:', error);
-          }
-      }
-      console.log('Finished populating active listings.');
-  } else {
-      console.log('No active listings found');
-      listingsContainer.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
-  }
 
-  hideLoader();
+  listingsContainer.innerHTML = ''; // Clear existing content
+    listingsContainer.style.opacity = '0'; // Hide the container
+
+    if (listings.length > 0) {
+        console.log(`Populating ${listings.length} active listings`);
+        
+        // Pre-build HTML structure for all listings
+        const fragment = document.createDocumentFragment();
+        listings.forEach(listing => {
+            const listingElement = createListingElement(listing);
+            listingElement.style.opacity = '0'; // Start hidden
+            fragment.appendChild(listingElement);
+        });
+        
+        listingsContainer.appendChild(fragment);
+
+        // Fetch room details and populate data
+        const batchSize = 6;
+        for (let i = 0; i < listings.length; i += batchSize) {
+            const batch = listings.slice(i, i + batchSize);
+            await Promise.all(batch.map(async (listing, index) => {
+                const roomDetails = await fetchRoomDetails(listing.id);
+                populateListingData(listingsContainer.children[i + index], listing, roomDetails);
+            }));
+
+            // Fade in this batch
+            if (i === 0) {
+                listingsContainer.style.opacity = '1';
+                listingsContainer.style.transition = 'opacity 0.5s ease-in-out';
+            }
+            for (let j = i; j < i + batchSize && j < listings.length; j++) {
+                listingsContainer.children[j].style.opacity = '1';
+                listingsContainer.children[j].style.transition = 'opacity 0.3s ease-in-out';
+            }
+
+            if (i + batchSize >= listings.length) {
+                console.log('Finished populating all listings.');
+            }
+        }
+    } else {
+        console.log('No active listings found');
+        listingsContainer.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
+        listingsContainer.style.opacity = '1';
+    }
+
+    hideLoader();
 }
 
-document.addEventListener('DOMContentLoaded', populateListings);
+
+function lazyLoadImages() {
+  const images = document.querySelectorAll('img[data-src]');
+  const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+          if (entry.isIntersecting) {
+              const img = entry.target;
+              img.src = img.dataset.src;
+              img.removeAttribute('data-src');
+              observer.unobserve(img);
+          }
+      });
+  }, options);
+
+  images.forEach(img => observer.observe(img));
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  populateListings();
+  lazyLoadImages();
+});
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    populateListings();
+  populateListings();
+  lazyLoadImages();
 }
