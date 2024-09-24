@@ -32,7 +32,7 @@ function showLoader() {
       renderer: 'svg',
       loop: true,
       autoplay: true,
-      path: 'https://assets3.lottiefiles.com/packages/lf20_usmfx6bp.json'
+      path: 'https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/66f2b5fe696715c9eda11f75_lottieflow-loading-03-000000-easey.json'
     });
   }
 
