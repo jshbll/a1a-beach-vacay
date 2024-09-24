@@ -219,13 +219,69 @@ async function populateListings() {
   showLoader();
 
   const listings = await fetchListingsFromLodgify();
-  const listingsContainer = document.getElementById('listings-container');
+  const shortTermContainer = document.getElementById('w-tabs-0-data-w-pane-0');
+  const extendedStayContainer = document.getElementById('w-tabs-0-data-w-pane-1');
   
-  if (!listingsContainer) {
-      console.error('Listings container not found');
-      hideLoader();
-      return;
+  if (!shortTermContainer || !extendedStayContainer) {
+    console.error('One or both listings containers not found');
+    hideLoader();
+    return;
   }
+
+  shortTermContainer.innerHTML = ''; // Clear existing content
+  extendedStayContainer.innerHTML = ''; // Clear existing content
+  shortTermContainer.style.opacity = '0'; // Hide the container
+  extendedStayContainer.style.opacity = '0'; // Hide the container
+
+  if (listings.length > 0) {
+    console.log(`Sorting ${listings.length} listings`);
+    
+    const shortTermListings = listings.filter(listing => listing.price_unit_in_days < 30);
+    const extendedStayListings = listings.filter(listing => listing.price_unit_in_days >= 30);
+
+    await populateListingsContainer(shortTermContainer, shortTermListings);
+    await populateListingsContainer(extendedStayContainer, extendedStayListings);
+
+    shortTermContainer.style.opacity = '1';
+    extendedStayContainer.style.opacity = '1';
+    shortTermContainer.style.transition = 'opacity 0.5s ease-in-out';
+    extendedStayContainer.style.transition = 'opacity 0.5s ease-in-out';
+  } else {
+    console.log('No active listings found');
+    shortTermContainer.innerHTML = '<p>No short-term listings available at the moment. Please check back later.</p>';
+    extendedStayContainer.innerHTML = '<p>No extended stay listings available at the moment. Please check back later.</p>';
+    shortTermContainer.style.opacity = '1';
+    extendedStayContainer.style.opacity = '1';
+  }
+
+  hideLoader();
+}
+
+async function populateListingsContainer(container, listings) {
+  const fragment = document.createDocumentFragment();
+  listings.forEach(listing => {
+    const listingElement = createListingElement(listing);
+    listingElement.style.opacity = '0'; // Start hidden
+    fragment.appendChild(listingElement);
+  });
+  
+  container.appendChild(fragment);
+
+  const batchSize = 6;
+  for (let i = 0; i < listings.length; i += batchSize) {
+    const batch = listings.slice(i, i + batchSize);
+    await Promise.all(batch.map(async (listing, index) => {
+      const roomDetails = await fetchRoomDetails(listing.id);
+      populateListingData(container.children[i + index], listing, roomDetails);
+    }));
+
+    // Fade in this batch
+    for (let j = i; j < i + batchSize && j < listings.length; j++) {
+      container.children[j].style.opacity = '1';
+      container.children[j].style.transition = 'opacity 0.3s ease-in-out';
+    }
+  }
+}
 
 
   listingsContainer.innerHTML = ''; // Clear existing content
