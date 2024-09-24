@@ -159,15 +159,9 @@ async function createListingElement(property, roomDetails) {
   const template = document.createElement('div');
   template.className = 'rental-item w-dyn-item';
 
+  // Use getOptimizedImageUrl instead of declaring imageUrl twice
   const imageUrl = await getOptimizedImageUrl(property.image_url || '');
 
-  let imageUrl = property.image_url || '';
-  try {
-      const webpUrl = await convertToWebP(imageUrl);
-      imageUrl = webpUrl;
-  } catch (error) {
-      console.error('Error converting image to WebP:', error);
-  }
     
     template.innerHTML = `
       <div class="rental-card">
