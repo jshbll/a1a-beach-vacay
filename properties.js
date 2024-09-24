@@ -124,8 +124,14 @@ function createListingElement(listing) {
   template.className = 'rental-item w-dyn-item';
   template.innerHTML = `
       <div class="rental-card">
-          <a href="https://book.a1abeachvacay.com/en/${(listing.name || '').replace(/\s+/g, '-').toLowerCase().replace(/[^a-z0-9\-]/g, '')}" class="rental-card w-inline-block">
-              <div class="card-top-2">
+<a href="https://book.a1abeachvacay.com/en/${
+  (listing.name || '')
+    .toLowerCase()
+    .replace(/\s+/g, '-')          // Replace whitespace with hyphens
+    .replace(/[^a-z0-9\-]/g, '')   // Remove invalid characters
+    .replace(/-+/g, '-')           // Replace multiple hyphens with a single hyphen
+    .replace(/^-+|-+$/g, '')       // Remove leading or trailing hyphens
+}" class="rental-card w-inline-block">              <div class="card-top-2">
                   <div class="room-quick-info">
                       <div class="intro-card-stats">
                           <!-- Placeholder stats -->
