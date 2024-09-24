@@ -187,7 +187,8 @@ function populateListingData(element, listing, roomDetails) {
                       <div class="guests-bed-bath-icon">Bedrooms</div>
                   </div>
                   <div class="w-layout-hflex">
-                      <div class="guests-bed-bath-icon number"><span class="bed-list">${formatSleepingInfo(roomDetails)}</span></div>
+                      <div class="guests-bed-bath-icon bed-options number">
+                      <span class="bed-list">${formatSleepingInfo(roomDetails)}</span></div>
                   </div>
                   <div class="w-layout-hflex">
                       <div class="guests-bed-bath-icon number">${roomDetails?.bathrooms || listing.bathrooms || 'N/A'}</div>
