@@ -238,30 +238,27 @@ async function createListingElement(property, roomDetails) {
 
 }
 
-  function checkForImageUpdates(propertyId, originalImageUrl) {
-    fetch(originalImageUrl, { method: 'HEAD' })
-        .then(response => {
-            const lastModified = response.headers.get('Last-Modified');
-            if (lastModified && lastModified !== imageCache.get(originalImageUrl + '_lastModified')) {
-                imageCache.delete(originalImageUrl);
-                imageCache.set(originalImageUrl + '_lastModified', lastModified);
-                // Trigger a re-render of this specific listing
-                updateListingImage(propertyId, originalImageUrl);
-            }
-        })
-        .catch(error => console.error('Error checking for image update:', error));
+function checkForImageUpdates(propertyId, originalImageUrl) {
+  fetch(originalImageUrl, { 
+      method: 'HEAD',
+      mode: 'no-cors' // Add this line
+  })
+  .then(() => {
+      // We can't check the Last-Modified header, so just assume it's changed
+      updateListingImage(propertyId, originalImageUrl);
+  })
+  .catch(error => console.error('Error checking for image update:', error));
 }
 
 function updateListingImage(propertyId, newImageUrl) {
-    const listingElement = document.querySelector(`[data-property-id="${propertyId}"]`);
-    if (listingElement) {
-        getOptimizedImageUrl(newImageUrl).then(optimizedUrl => {
-            const img = listingElement.querySelector('.rental-image-2');
-            if (img) {
-                img.src = optimizedUrl;
-            }
-        });
-    }
+  const listingElement = document.querySelector(`[data-property-id="${propertyId}"]`);
+  if (listingElement) {
+      const img = listingElement.querySelector('.rental-image-2');
+      if (img) {
+          // Add a cache-busting query parameter
+          img.src = `${newImageUrl}?t=${Date.now()}`;
+      }
+  }
 }
 
 async function populateListings() {
