@@ -222,63 +222,64 @@ async function populateListings() {
   showLoader();
 
   const listings = await fetchListingsFromLodgify();
-  const listingsContainer = document.getElementById('listings-container');
-  
-  if (!listingsContainer) {
-      console.error('Listings container not found');
+  const listingsContainerShortTerm = document.getElementById('listings-container');
+  const listingsContainerLongTerm = document.getElementById('listings-container-long-term');
+
+  if (!listingsContainerShortTerm || !listingsContainerLongTerm) {
+      console.error('Listings containers not found');
       hideLoader();
       return;
   }
 
+  listingsContainerShortTerm.innerHTML = '';
+  listingsContainerShortTerm.style.opacity = '0';
 
-  listingsContainer.innerHTML = ''; // Clear existing content
-    listingsContainer.style.opacity = '0'; // Hide the container
+  listingsContainerLongTerm.innerHTML = '';
+  listingsContainerLongTerm.style.opacity = '0';
 
-    if (listings.length > 0) {
-        console.log(`Populating ${listings.length} active listings`);
-        
-        // Pre-build HTML structure for all listings
-        const fragment = document.createDocumentFragment();
-        listings.forEach(listing => {
-            const listingElement = createListingElement(listing);
-            listingElement.style.opacity = '0'; // Start hidden
-            fragment.appendChild(listingElement);
-        });
-        
-        listingsContainer.appendChild(fragment);
+  if (listings.length > 0) {
+      console.log(`Processing ${listings.length} active listings`);
 
-        // Fetch room details and populate data
-        const batchSize = 6;
-        for (let i = 0; i < listings.length; i += batchSize) {
-            const batch = listings.slice(i, i + batchSize);
-            await Promise.all(batch.map(async (listing, index) => {
-                const roomDetails = await fetchRoomDetails(listing.id);
-                populateListingData(listingsContainer.children[i + index], listing, roomDetails);
-            }));
+      const shortTermListings = [];
+      const longTermListings = [];
 
-            // Fade in this batch
-            if (i === 0) {
-                listingsContainer.style.opacity = '1';
-                listingsContainer.style.transition = 'opacity 0.5s ease-in-out';
-            }
-            for (let j = i; j < i + batchSize && j < listings.length; j++) {
-                listingsContainer.children[j].style.opacity = '1';
-                listingsContainer.children[j].style.transition = 'opacity 0.3s ease-in-out';
-            }
+      listings.forEach(listing => {
+          if (listing.price_unit_in_days >= 30) {
+              longTermListings.push(listing);
+          } else {
+              shortTermListings.push(listing);
+          }
+      });
 
-            if (i + batchSize >= listings.length) {
-                console.log('Finished populating all listings.');
-            }
-        }
-    } else {
-        console.log('No active listings found');
-        listingsContainer.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
-        listingsContainer.style.opacity = '1';
-    }
+      // Populate short-term listings
+      if (shortTermListings.length > 0) {
+          console.log(`Populating ${shortTermListings.length} short-term listings`);
+          await populateListingsGroup(shortTermListings, listingsContainerShortTerm);
+      } else {
+          console.log('No short-term listings found');
+          listingsContainerShortTerm.innerHTML = '<p>No short-term listings available at the moment. Please check back later.</p>';
+          listingsContainerShortTerm.style.opacity = '1';
+      }
 
-    hideLoader();
+      // Populate long-term listings
+      if (longTermListings.length > 0) {
+          console.log(`Populating ${longTermListings.length} long-term listings`);
+          await populateListingsGroup(longTermListings, listingsContainerLongTerm);
+      } else {
+          console.log('No long-term listings found');
+          listingsContainerLongTerm.innerHTML = '<p>No long-term listings available at the moment. Please check back later.</p>';
+          listingsContainerLongTerm.style.opacity = '1';
+      }
+  } else {
+      console.log('No active listings found');
+      listingsContainerShortTerm.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
+      listingsContainerShortTerm.style.opacity = '1';
+      listingsContainerLongTerm.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
+      listingsContainerLongTerm.style.opacity = '1';
+  }
+
+  hideLoader();
 }
-
 
 function lazyLoadImages() {
   const images = document.querySelectorAll('img[data-src]');
