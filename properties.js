@@ -281,6 +281,37 @@ async function populateListings() {
   hideLoader();
 }
 
+async function populateListingsGroup(listingsGroup, container) {
+  const fragment = document.createDocumentFragment();
+
+  listingsGroup.forEach(listing => {
+      const listingElement = createListingElement(listing);
+      listingElement.style.opacity = '0'; // Start hidden
+      fragment.appendChild(listingElement);
+  });
+
+  container.appendChild(fragment);
+
+  const batchSize = 6;
+  for (let i = 0; i < listingsGroup.length; i += batchSize) {
+      const batch = listingsGroup.slice(i, i + batchSize);
+      await Promise.all(batch.map(async (listing, index) => {
+          const roomDetails = await fetchRoomDetails(listing.id);
+          populateListingData(container.children[i + index], listing, roomDetails);
+      }));
+
+      // Fade in this batch
+      if (i === 0) {
+          container.style.opacity = '1';
+          container.style.transition = 'opacity 0.5s ease-in-out';
+      }
+      for (let j = i; j < i + batchSize && j < listingsGroup.length; j++) {
+          container.children[j].style.opacity = '1';
+          container.children[j].style.transition = 'opacity 0.3s ease-in-out';
+      }
+  }
+}
+
 function lazyLoadImages() {
   const images = document.querySelectorAll('img[data-src]');
   const options = {
