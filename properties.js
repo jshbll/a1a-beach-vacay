@@ -356,12 +356,15 @@ function lazyLoadImages() {
 }
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  populateListings();
+document.addEventListener('DOMContentLoaded', async () => {
+  await populateListings();
   lazyLoadImages();
 });
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  populateListings();
-  lazyLoadImages();
+  (async () => {
+    await populateListings();
+    lazyLoadImages();
+  })();
 }
+
