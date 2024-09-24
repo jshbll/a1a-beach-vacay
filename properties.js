@@ -157,7 +157,7 @@ function populateListingData(element, listing, roomDetails) {
       statsContainer.innerHTML = `
           <div class="frame-28">
               <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-              <div class="text-5">${listing.max_people || 'N/A'}</div>
+              <div class="text-5">${roomDetails.max_people || 'N/A'}</div>
           </div>
           <div class="frame-28">
               <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
@@ -180,7 +180,7 @@ function populateListingData(element, listing, roomDetails) {
               </div>
               <div class="specs-wrapper">
                   <div class="w-layout-hflex">
-                      <div class="guests-bed-bath-icon number">${listing.max_people || 'N/A'}</div>
+                      <div class="guests-bed-bath-icon number">${roomDetails.max_people || 'N/A'}</div>
                       <div class="guests-bed-bath-icon">Guests</div>
                   </div>
                   <div class="w-layout-hflex">
