@@ -176,7 +176,6 @@ function populateListingData(element, listing, roomDetails) {
           <div class="frame-29">
               <div class="frame-30">
                   <h2 class="property-name truncate">${listing.name || 'Unnamed Property'}</h2>
-                  <div class="property-type">${listing.name || ''}</div>
               </div>
               <div class="specs-wrapper">
                   <div class="w-layout-hflex">
