@@ -9,32 +9,32 @@ const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 let loadingAnimation;
 
 function showLoader() {
-    const loaderContainer = document.getElementById('lottie-loader');
-    if (!loaderContainer) {
-      console.error('Loader container not found. Creating one...');
-      const newLoader = document.createElement('div');
-      newLoader.id = 'lottie-loader';
-      newLoader.style.width = '200px';
-      newLoader.style.height = '200px';
-      newLoader.style.margin = 'auto';
-      newLoader.style.position = 'fixed';
-      newLoader.style.top = '50%';
-      newLoader.style.left = '50%';
-      newLoader.style.transform = 'translate(-50%, -50%)';
-      newLoader.style.zIndex = '1000';
-      document.body.appendChild(newLoader);
-    }
-    
-    const updatedLoaderContainer = document.getElementById('lottie-loader');
-    updatedLoaderContainer.style.display = 'block';
-    loadingAnimation = lottie.loadAnimation({
-      container: updatedLoaderContainer,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      path: 'https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/66f2b5fe696715c9eda11f75_lottieflow-loading-03-000000-easey.json'
-    });
+  const loaderContainer = document.getElementById('lottie-loader');
+  if (!loaderContainer) {
+    console.error('Loader container not found. Creating one...');
+    const newLoader = document.createElement('div');
+    newLoader.id = 'lottie-loader';
+    newLoader.style.width = '100px';  // Reduced from 200px
+    newLoader.style.height = '100px'; // Reduced from 200px
+    newLoader.style.margin = 'auto';
+    newLoader.style.position = 'fixed';
+    newLoader.style.top = '50%';
+    newLoader.style.left = '50%';
+    newLoader.style.transform = 'translate(-50%, -50%)';
+    newLoader.style.zIndex = '1000';
+    document.body.appendChild(newLoader);
   }
+  
+  const updatedLoaderContainer = document.getElementById('lottie-loader');
+  updatedLoaderContainer.style.display = 'block';
+  loadingAnimation = lottie.loadAnimation({
+    container: updatedLoaderContainer,
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    path: 'https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/66f2b5fe696715c9eda11f75_lottieflow-loading-03-000000-easey.json'
+  });
+}
 
 
   function hideLoader() {
