@@ -124,25 +124,26 @@ function createListingElement(listing) {
   template.className = 'rental-item w-dyn-item';
   template.innerHTML = `
       <div class="rental-card">
-<a href="https://book.a1abeachvacay.com/en/${
-  (listing.name || '')
-    .toLowerCase();                      // Convert to lowercase
-    .replace(/~|[\/]/g, '')              // Remove ~ and / characters
-    .replace(/\s-\s/g, '---')            // Replace " - " with "---"
-    .replace(/\s+/g, '-')                // Replace spaces with hyphens
-    .replace(/-+/g, '-')                 // Replace multiple hyphens with a single hyphen
-}" class="rental-card w-inline-block">              <div class="card-top-2">
-                  <div class="room-quick-info">
-                      <div class="intro-card-stats">
-                          <!-- Placeholder stats -->
-                      </div>
+        <a href="https://book.a1abeachvacay.com/en/${
+          (listing.name || '')
+          .replace(/~|[\/]/g, '')              // Remove ~ and / characters
+          .replace(/\s-\s/g, '---')            // Replace " - " with "---"
+          .replace(/\s+/g, '-')                // Replace spaces with hyphens
+          .replace(/-+/g, '-')                 // Replace multiple hyphens with a single hyphen
+          .toLowerCase()                       // Convert to lowercase
+        }" class="rental-card w-inline-block">              
+          <div class="card-top-2">
+              <div class="room-quick-info">
+                  <div class="intro-card-stats">
+                      <!-- Placeholder stats -->
                   </div>
-                  <img width="424.5487365722656" height="350" alt="" data-src="${listing.image_url || ''}" class="rental-image-2 static" loading="lazy">
               </div>
-              <div class="card-info-3">
-                  <!-- Placeholder info -->
-              </div>
-          </a>
+              <img width="424.5487365722656" height="350" alt="" data-src="${listing.image_url || ''}" class="rental-image-2 static" loading="lazy">
+          </div>
+          <div class="card-info-3">
+              <!-- Placeholder info -->
+          </div>
+        </a>
       </div>
   `;
   return template;
