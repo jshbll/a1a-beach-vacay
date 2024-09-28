@@ -126,26 +126,22 @@ function createListingElement(listing) {
       <div class="rental-card">
         <a href="https://book.a1abeachvacay.com/en/${
    (listing.name || '')
-      // Convert to lowercase
-      .toLowerCase()
-      // Replace " - " (space-hyphen-space) with "---"
-      .replace(/\s-\s/g, '---')
-      // Handle unit numbers (e.g., 9C, K7)
-      .replace(/^(\d+[a-z])\s+/i, '$1-')
-      // Handle BR/BA format while preserving surrounding hyphens
-      .replace(/(\d+)\s*br\s*\/?\s*(\d+)\s*ba/i, '-$1br$2ba-')
-      // Remove "by the Sea" for certain properties
-      .replace(/\s+by\s+the\s+sea/i, '')
-      // Handle "Surf and Racquet" special case
-      .replace(/surf\s+and\s+racquet/i, 'surf-and-racquet')
-      // Replace remaining spaces with single hyphens, preserving double hyphens
-      .replace(/([^-\s])\s+([^-\s])/g, '$1-$2')
-      // Remove special characters except alphanumeric and hyphens
-      .replace(/[^a-z0-9-]+/g, '')
-      // Reduce multiple consecutive hyphens to double hyphens, except for "---"
-      .replace(/--+/g, (match) => match === '---' ? '---' : '--')
-      // Remove leading/trailing hyphens
-      .replace(/^-+|-+$/g, '')
+   (listing.name || '')
+   // Convert to lowercase
+   .toLowerCase()
+   // Replace " - " (space-hyphen-space) with "---"
+   .replace(/\s-\s/g, '---')
+   // Handle BR/BA format
+   .replace(/(\d+)\s*(br)\/(\d+)\s*(ba)/i, '$1-$2$3$4')
+   // Replace remaining spaces with single hyphens, but keep the hyphen before numbers
+   .replace(/\s+(?=\d)/g, '-')
+   .replace(/\s+/g, '-')
+   // Remove special characters except alphanumeric and hyphens
+   .replace(/[^a-z0-9-]+/g, '')
+   // Ensure double hyphens before "minute" (if present)
+   .replace(/-(\d+)-minute/, '--$1-minute')
+   // Remove leading/trailing hyphens
+   .replace(/^-+|-+$/g, '')
     }" class="rental-card w-inline-block">              
           <div class="card-top-2">
               <div class="room-quick-info">
