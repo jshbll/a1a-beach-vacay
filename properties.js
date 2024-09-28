@@ -127,9 +127,10 @@ function createListingElement(listing) {
         <a href="https://book.a1abeachvacay.com/en/${
           (listing.name || '')
           .replace(/\s-\s/g, '---')            // Replace " - " with "---"
-          .replace(/\s+/g, '-')                // Replace remaining spaces with hyphens
-          .replace(/[^a-zA-Z0-9-]+/g, '')      // Remove all characters except alphanumeric and hyphens
-          .replace(/(?<!-)--+/g, '-')          // Replace multiple hyphens except '---'
+        .replace(/\s+/g, '-')                // Replace remaining spaces with single hyphens
+        .replace(/[^a-zA-Z0-9-]+/g, '')      // Remove all characters except alphanumeric and hyphens
+        .replace(/(?<!-)--+/g, '-')          // Replace multiple hyphens except '---'
+        .replace(/---/g, '---')              // Ensure triple hyphens remain as is
         .toLowerCase()                   // Convert to lowercase
         }" class="rental-card w-inline-block">              
           <div class="card-top-2">
