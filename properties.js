@@ -126,8 +126,8 @@ function createListingElement(listing) {
       <div class="rental-card">
         <a href="https://book.a1abeachvacay.com/en/${
           (listing.name || '')
-         // Step 1: Replace " - " (single hyphen with spaces) with a unique placeholder
-        .replace(/\s-\s/g, '___TRIPLE_HYPHEN___')
+        // Step 1: Replace " - " (single hyphen with spaces) with a unique placeholder
+        .replace(/\s-\s/g, '---')
         // Step 2: Replace remaining spaces with single hyphens
         .replace(/\s+/g, '-')
         // Step 3: Remove all characters except alphanumerics and hyphens
@@ -135,7 +135,7 @@ function createListingElement(listing) {
         // Step 4: Collapse multiple hyphens into a single hyphen
         .replace(/-+/g, '-')
         // Step 5: Restore the placeholder back to '---'
-        .replace(/___TRIPLE_HYPHEN___/g, '---')
+        .replace(/---/g, '---')
         // Step 6: Convert the entire string to lowercase
         .toLowerCase()
         }" class="rental-card w-inline-block">              
