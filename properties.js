@@ -129,9 +129,9 @@ function createListingElement(listing) {
     .toLowerCase()
     .replace(/\s+/g, '-')          // Replace whitespace with hyphens
     .replace(/[^a-z0-9\-]/g, '')   // Remove invalid characters
-    .replace(/-+/g, '---')           // Replace multiple hyphens with a single hyphen
     .replace(/^-+|-+$/g, '')       // Remove leading or trailing hyphens
-}" class="rental-card w-inline-block">              <div class="card-top-2">
+    .replace(/\s-\s/g, '---')   // Replace a single hyphen with spaces on both sides with three hyphens
+    }" class="rental-card w-inline-block">              <div class="card-top-2">
                   <div class="room-quick-info">
                       <div class="intro-card-stats">
                           <!-- Placeholder stats -->
