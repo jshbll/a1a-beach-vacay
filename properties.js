@@ -126,11 +126,11 @@ function createListingElement(listing) {
       <div class="rental-card">
 <a href="https://book.a1abeachvacay.com/en/${
   (listing.name || '')
-  .replace(/~|[\/]/g, '')              // Remove ~ and / characters
-  .replace(/\s-\s/g, '---')            // Replace " - " with "---"
-  .replace(/\s+/g, '-')                // Replace spaces with hyphens
-  .replace(/-+/g, '-')                 // Replace multiple hyphens with a single hyphen
-  .toLowerCase();                      // Convert to lowercase
+    .toLowerCase();                      // Convert to lowercase
+    .replace(/~|[\/]/g, '')              // Remove ~ and / characters
+    .replace(/\s-\s/g, '---')            // Replace " - " with "---"
+    .replace(/\s+/g, '-')                // Replace spaces with hyphens
+    .replace(/-+/g, '-')                 // Replace multiple hyphens with a single hyphen
 }" class="rental-card w-inline-block">              <div class="card-top-2">
                   <div class="room-quick-info">
                       <div class="intro-card-stats">
