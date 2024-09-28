@@ -126,7 +126,6 @@ function createListingElement(listing) {
       <div class="rental-card">
         <a href="https://book.a1abeachvacay.com/en/${
    (listing.name || '')
-   (listing.name || '')
    // Convert to lowercase
    .toLowerCase()
    // Replace " - " (space-hyphen-space) with "---"
