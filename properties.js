@@ -132,11 +132,13 @@ function createListingElement(listing) {
  .replace(/\s+/g, '-')
  // Step 3: Remove any characters that are not alphanumeric or hyphen
  .replace(/[^a-zA-Z0-9-]/g, '')
- // Step 4: Ensure multiple single hyphens (but not "---") are reduced to one
+ // Step 4: Reduce multiple single hyphens to one, but preserve "---"
  .replace(/(?<!-)--+/g, '-')
- // Step 5: Convert everything to lowercase
+ // Step 5: Convert to lowercase
  .toLowerCase()
-}
+ // Step 6: Remove any URL encoded characters (like %20 or %7D)
+ .replace(/%[0-9A-F]{2}/g, '') // Remove URL encoded characters if any
+
         }" class="rental-card w-inline-block">              
           <div class="card-top-2">
               <div class="room-quick-info">
