@@ -126,21 +126,18 @@ function createListingElement(listing) {
       <div class="rental-card">
         <a href="https://book.a1abeachvacay.com/en/${
    (listing.name || '')
-   // Convert to lowercase
-   .toLowerCase()
-   // Replace " - " (space-hyphen-space) with "---"
+   // Step 1: Replace " - " (hyphen with spaces around it) with '---'
    .replace(/\s-\s/g, '---')
-   // Handle BR/BA format
-   .replace(/(\d+)\s*(br)\/(\d+)\s*(ba)/i, '$1-$2$3$4')
-   // Replace remaining spaces with single hyphens, but keep the hyphen before numbers
-   .replace(/\s+(?=\d)/g, '-')
+   // Step 2: Remove slashes, pipes, and other special characters entirely
+   .replace(/[|\/]/g, '')
+   // Step 3: Replace remaining spaces with single hyphens
    .replace(/\s+/g, '-')
-   // Remove special characters except alphanumeric and hyphens
-   .replace(/[^a-z0-9-]+/g, '')
-   // Ensure double hyphens before "minute" (if present)
-   .replace(/-(\d+)-minute/, '--$1-minute')
-   // Remove leading/trailing hyphens
-   .replace(/^-+|-+$/g, '')
+   // Step 4: Remove all other invalid characters except hyphens and alphanumeric
+   .replace(/[^a-zA-Z0-9-]+/g, '')
+   // Step 5: Ensure multiple hyphens become a single hyphen, but preserve "---"
+   .replace(/-{2,}/g, '-')
+   // Step 6: Convert everything to lowercase
+   .toLowerCase()
     }" class="rental-card w-inline-block">              
           <div class="card-top-2">
               <div class="room-quick-info">
