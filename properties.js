@@ -125,19 +125,24 @@ function createListingElement(listing) {
   template.innerHTML = `
       <div class="rental-card">
         <a href="https://book.a1abeachvacay.com/en/${
-          (listing.name || '')
-   // Step 1: Replace " - " (single hyphen surrounded by spaces) with "---"
-   .replace(/\s-\s/g, '---')
-   // Step 2: Replace remaining spaces with single hyphens
-   .replace(/\s+/g, '-')
-   // Step 3: Remove all characters except alphanumeric and hyphens
-   .replace(/[^a-zA-Z0-9-]+/g, '')
-   // Step 4: Reduce multiple single hyphens to one, but preserve "---"
-   .replace(/-{2,}/g, (match) => match === '---' ? '---' : '-')
-   // Step 5: Convert everything to lowercase
-   .toLowerCase()
-
-        }" class="rental-card w-inline-block">              
+   (listing.name || '')
+        // Convert to lowercase
+        .toLowerCase()
+        // Handle unit numbers (e.g., 9C, K7)
+        .replace(/^(\d+[a-z])\s+/i, '$1-')
+        // Handle BR/BA format
+        .replace(/(\d+)\s*br\s*\/?\s*(\d+)\s*ba/i, '$1br$2ba')
+        // Remove "by the Sea" for certain properties
+        .replace(/\s+by\s+the\s+sea/i, '')
+        // Handle "Surf and Racquet" special case
+        .replace(/surf\s+and\s+racquet/i, 'surf-and-racquet')
+        // Replace multiple spaces or dashes with a single dash
+        .replace(/[\s-]+/g, '-')
+        // Remove special characters except dashes and alphanumeric
+        .replace(/[^a-z0-9-]/g, '')
+        // Remove leading/trailing dashes
+        .replace(/^-+|-+$/g, '')
+    }" class="rental-card w-inline-block">              
           <div class="card-top-2">
               <div class="room-quick-info">
                   <div class="intro-card-stats">
