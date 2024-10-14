@@ -217,9 +217,9 @@ function populateListingData(element, listing, roomDetails) {
             ? Math.round(listing.original_min_price * listing.price_unit_in_days)
             : 'N/A'}
     </div>
-    <div class="price-text unit-text">
-        /${listing.price_unit_in_days >= 30 ? 'month' : 'night'}
-    </div>
+<div class="price-text unit-text">
+  /${listing.price_unit_in_days >= 30 ? 'month' : (listing.price_unit_in_days >= 7 ? 'week' : 'night')}
+</div>
 </div>
       `;
   }
