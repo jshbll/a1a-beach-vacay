@@ -213,8 +213,8 @@ function populateListingData(element, listing, roomDetails) {
 <div class="intro-card-price">
     <div class="price-text">$</div>
     <div class="price-text">
-        ${listing.min_price && listing.price_unit_in_days
-            ? Math.round(listing.min_price * listing.price_unit_in_days)
+        ${listing.original_min_price && listing.price_unit_in_days
+            ? Math.round(listing.original_min_price * listing.price_unit_in_days)
             : 'N/A'}
     </div>
     <div class="price-text unit-text">
