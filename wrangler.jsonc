@@ -8,9 +8,22 @@
     "enabled": true,
     "head_sampling_rate": 1
   },
+  "kv_namespaces": [
+    {
+      "binding": "A1A_LODGIFY_CACHE",
+      "id": "82ebd2307ab548aea4c9cc325c9819bf"
+    }
+  ],
+  "triggers": {
+    "crons": ["*/30 * * * *"]
+  },
   "vars": {
     "LODGIFY_WEBSITE_ID": "410037",
-    "CACHE_TTL_SECONDS": "300",
+    "PUBLIC_CACHE_TTL_SECONDS": "60",
+    "STALE_WHILE_REVALIDATE_SECONDS": "300",
+    "RATE_LIMIT_COOLDOWN_SECONDS": "900",
+    "ROOM_FETCH_CONCURRENCY": "1",
+    "ROOM_FETCH_DELAY_MS": "300",
     "ALLOWED_ORIGINS": "https://www.a1abeachvacay.com,https://a1abeachvacay.com,http://localhost:8787,http://127.0.0.1:8787"
   }
 }
