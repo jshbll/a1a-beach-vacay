@@ -7,6 +7,7 @@ const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
 
 
 let loadingAnimation;
+let listingsInitialized = false;
 
 function showLoader() {
   const loaderContainer = document.getElementById('lottie-loader');
@@ -27,6 +28,13 @@ function showLoader() {
   
   const updatedLoaderContainer = document.getElementById('lottie-loader');
   updatedLoaderContainer.style.display = 'block';
+  if (typeof lottie === 'undefined') {
+    console.error('Lottie library not loaded. Loader animation skipped.');
+    return;
+  }
+  if (loadingAnimation) {
+    loadingAnimation.destroy();
+  }
   loadingAnimation = lottie.loadAnimation({
     container: updatedLoaderContainer,
     renderer: 'svg',
@@ -43,6 +51,7 @@ function showLoader() {
       loaderContainer.style.display = 'none';
       if (loadingAnimation) {
         loadingAnimation.destroy();
+        loadingAnimation = null;
       }
     }
   }
@@ -113,7 +122,6 @@ async function fetchRoomDetails(propertyId) {
     return data[0]; // Assuming we want the first room's details
   } catch (error) {
     console.error(`Error fetching room details for property ${propertyId}:`, error);
-    console.log(`Room details for property ${propertyId}:`, JSON.stringify(data, null, 2));
     return null;
   }
 }
@@ -171,7 +179,7 @@ function populateListingData(element, listing, roomDetails) {
       statsContainer.innerHTML = `
           <div class="frame-28">
               <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7638b39a76c3b5fdbb_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
-              <div class="text-5">${roomDetails.max_people || 'N/A'}</div>
+              <div class="text-5">${roomDetails?.max_people || listing.max_people || 'N/A'}</div>
           </div>
           <div class="frame-28">
               <img width="10" height="10" alt="" src="https://cdn.prod.website-files.com/64c3fe68c106f4a98d188386/64daaf7770b87ba339afa01f_Vectors-Wrapper.svg" loading="lazy" class="vector-icon">
@@ -193,7 +201,7 @@ function populateListingData(element, listing, roomDetails) {
               </div>
               <div class="specs-wrapper">
                   <div class="w-layout-hflex">
-                      <div class="guests-bed-bath-icon number">${roomDetails.max_people || 'N/A'}</div>
+                      <div class="guests-bed-bath-icon number">${roomDetails?.max_people || listing.max_people || 'N/A'}</div>
                       <div class="guests-bed-bath-icon">Guests</div>
                   </div>
                   <div class="w-layout-hflex">
@@ -233,67 +241,76 @@ function populateListingData(element, listing, roomDetails) {
 }
 
 async function populateListings() {
+  if (listingsInitialized) {
+      console.log('Listings already initialized. Skipping duplicate run.');
+      return;
+  }
+  listingsInitialized = true;
   console.log('Populating listings...');
   showLoader();
 
-  const listings = await fetchListingsFromLodgify();
-  const listingsContainerShortTerm = document.getElementById('listings-container');
-  const listingsContainerLongTerm = document.getElementById('listings-container-long-term');
+  try {
+      const listings = await fetchListingsFromLodgify();
+      const listingsContainerShortTerm = document.getElementById('listings-container');
+      const listingsContainerLongTerm = document.getElementById('listings-container-long-term');
 
-  if (!listingsContainerShortTerm || !listingsContainerLongTerm) {
-      console.error('Listings containers not found');
-      hideLoader();
-      return;
-  }
-
-  listingsContainerShortTerm.innerHTML = '';
-  listingsContainerShortTerm.style.opacity = '0';
-
-  listingsContainerLongTerm.innerHTML = '';
-  listingsContainerLongTerm.style.opacity = '0';
-
-  if (listings.length > 0) {
-      console.log(`Processing ${listings.length} active listings`);
-
-      const shortTermListings = [];
-      const longTermListings = [];
-
-      listings.forEach(listing => {
-          if (listing.price_unit_in_days >= 30) {
-              longTermListings.push(listing);
-          } else {
-              shortTermListings.push(listing);
-          }
-      });
-
-      // Populate short-term listings
-      if (shortTermListings.length > 0) {
-          console.log(`Populating ${shortTermListings.length} short-term listings`);
-          await populateListingsGroup(shortTermListings, listingsContainerShortTerm);
-      } else {
-          console.log('No short-term listings found');
-          listingsContainerShortTerm.innerHTML = '<p>No short-term listings available at the moment. Please check back later.</p>';
-          listingsContainerShortTerm.style.opacity = '1';
+      if (!listingsContainerShortTerm || !listingsContainerLongTerm) {
+          console.error('Listings containers not found');
+          return;
       }
 
-      // Populate long-term listings
-      if (longTermListings.length > 0) {
-          console.log(`Populating ${longTermListings.length} long-term listings`);
-          await populateListingsGroup(longTermListings, listingsContainerLongTerm);
+      listingsContainerShortTerm.innerHTML = '';
+      listingsContainerShortTerm.style.opacity = '0';
+
+      listingsContainerLongTerm.innerHTML = '';
+      listingsContainerLongTerm.style.opacity = '0';
+
+      if (listings.length > 0) {
+          console.log(`Processing ${listings.length} active listings`);
+
+          const shortTermListings = [];
+          const longTermListings = [];
+
+          listings.forEach(listing => {
+              if (listing.price_unit_in_days >= 30) {
+                  longTermListings.push(listing);
+              } else {
+                  shortTermListings.push(listing);
+              }
+          });
+
+          // Populate short-term listings
+          if (shortTermListings.length > 0) {
+              console.log(`Populating ${shortTermListings.length} short-term listings`);
+              await populateListingsGroup(shortTermListings, listingsContainerShortTerm);
+          } else {
+              console.log('No short-term listings found');
+              listingsContainerShortTerm.innerHTML = '<p>No short-term listings available at the moment. Please check back later.</p>';
+              listingsContainerShortTerm.style.opacity = '1';
+          }
+
+          // Populate long-term listings
+          if (longTermListings.length > 0) {
+              console.log(`Populating ${longTermListings.length} long-term listings`);
+              await populateListingsGroup(longTermListings, listingsContainerLongTerm);
+          } else {
+              console.log('No long-term listings found');
+              listingsContainerLongTerm.innerHTML = '<p>No long-term listings available at the moment. Please check back later.</p>';
+              listingsContainerLongTerm.style.opacity = '1';
+          }
       } else {
-          console.log('No long-term listings found');
-          listingsContainerLongTerm.innerHTML = '<p>No long-term listings available at the moment. Please check back later.</p>';
+          console.log('No active listings found');
+          listingsContainerShortTerm.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
+          listingsContainerShortTerm.style.opacity = '1';
+          listingsContainerLongTerm.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
           listingsContainerLongTerm.style.opacity = '1';
       }
-  } else {
-      console.log('No active listings found');
-      listingsContainerShortTerm.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
-      listingsContainerShortTerm.style.opacity = '1';
-      listingsContainerLongTerm.innerHTML = '<p>No active listings available at the moment. Please check back later.</p>';
-      listingsContainerLongTerm.style.opacity = '1';
+  } catch (error) {
+      listingsInitialized = false;
+      console.error('Unexpected error while populating listings:', error);
+  } finally {
+      hideLoader();
   }
-
-  hideLoader();
 }
 
 async function populateListingsGroup(listingsGroup, container) {
@@ -349,13 +366,14 @@ function lazyLoadImages() {
   images.forEach(img => observer.observe(img));
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
+function initListings() {
   populateListings();
   lazyLoadImages();
-});
+}
 
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  populateListings();
-  lazyLoadImages();
+// Event listeners
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initListings, { once: true });
+} else {
+  initListings();
 }
