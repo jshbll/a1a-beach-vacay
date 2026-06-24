@@ -1,9 +1,7 @@
 
 // Updated Lodgify API Integration with Room Details Fetch
 
-const LODGIFY_API_KEY = 'wjexqnx5cj/YxHu8K9aSgQxR6+/1echUQQyh8sSNuxfAN/pDBAIFgyaoxkBDExgW';
-const LODGIFY_PROPERTIES_ENDPOINT = 'https://api.lodgify.com/v2/properties?wid=410037&includeCount=false&includeInOut=false&page=1&size=50';
-const LODGIFY_ROOMS_ENDPOINT = 'https://api.lodgify.com/v2/properties/';
+const LODGIFY_PROXY_ENDPOINT = window.A1A_LODGIFY_PROXY_ENDPOINT || '';
 
 
 let loadingAnimation;
@@ -84,46 +82,33 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
 }
 
 async function fetchListingsFromLodgify() {
-    const options = {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        'X-ApiKey': LODGIFY_API_KEY
-      }
-    };
-  
+    if (!LODGIFY_PROXY_ENDPOINT) {
+      console.error('A1A_LODGIFY_PROXY_ENDPOINT is not configured.');
+      return [];
+    }
+
     try {
-      console.log('Fetching listings from Lodgify...');
-      const data = await fetchWithRetry(LODGIFY_PROPERTIES_ENDPOINT, options);
+      console.log('Fetching listings from Lodgify proxy...');
+      const data = await fetchWithRetry(LODGIFY_PROXY_ENDPOINT, {
+        method: 'GET',
+        headers: {
+          accept: 'application/json'
+        }
+      });
       console.log('Fetched listings:', data);
-      // Filter active listings
-      const activeListings = data.items.filter(listing => listing.is_active === true);
+      const activeListings = Array.isArray(data.items)
+        ? data.items.filter(listing => listing.is_active !== false)
+        : [];
       console.log('Active listings:', activeListings.length);
-      console.log('All listings active status:', data.items.map(item => item.is_active));
       return activeListings;
     } catch (error) {
-      console.error('Error fetching listings from Lodgify:', error);
+      console.error('Error fetching listings from Lodgify proxy:', error);
       return [];
     }    
   }
 
-async function fetchRoomDetails(propertyId) {
-  const options = {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      'X-ApiKey': LODGIFY_API_KEY
-    }
-  };
-
-  try {
-    const data = await fetchWithRetry(`${LODGIFY_ROOMS_ENDPOINT}${propertyId}/rooms`, options);
-    console.log(`Fetched room details for property ${propertyId}:`, data);
-    return data[0]; // Assuming we want the first room's details
-  } catch (error) {
-    console.error(`Error fetching room details for property ${propertyId}:`, error);
-    return null;
-  }
+async function fetchRoomDetails(listing) {
+  return listing?.room_details || listing?.roomDetails || null;
 }
 
 
@@ -328,7 +313,7 @@ async function populateListingsGroup(listingsGroup, container) {
   for (let i = 0; i < listingsGroup.length; i += batchSize) {
       const batch = listingsGroup.slice(i, i + batchSize);
       await Promise.all(batch.map(async (listing, index) => {
-          const roomDetails = await fetchRoomDetails(listing.id);
+          const roomDetails = await fetchRoomDetails(listing);
           populateListingData(container.children[i + index], listing, roomDetails);
       }));
 

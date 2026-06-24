@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "a1a-lodgify-proxy",
+  "main": "src/lodgify-proxy.js",
+  "compatibility_date": "2026-06-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "vars": {
+    "LODGIFY_WEBSITE_ID": "410037",
+    "CACHE_TTL_SECONDS": "300",
+    "ALLOWED_ORIGINS": "https://www.a1abeachvacay.com,https://a1abeachvacay.com,http://localhost:8787,http://127.0.0.1:8787"
+  }
+}
