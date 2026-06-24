@@ -3,6 +3,14 @@ const DEFAULT_WEBSITE_ID = '410037';
 const DEFAULT_CACHE_TTL_SECONDS = 300;
 const ROOM_FETCH_CONCURRENCY = 8;
 
+class UpstreamError extends Error {
+  constructor(status, retryAfter) {
+    super(`Lodgify request failed with status ${status}`);
+    this.status = status;
+    this.retryAfter = retryAfter;
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const corsHeaders = getCorsHeaders(request, env);
@@ -48,12 +56,22 @@ export default {
 
       return withCors(response, corsHeaders);
     } catch (error) {
+      const status = error instanceof UpstreamError && error.status === 429 ? 429 : 502;
+      const payload = status === 429
+        ? { error: 'Lodgify rate limited this request' }
+        : { error: 'Unable to load properties' };
+
+      if (error instanceof UpstreamError && error.retryAfter) {
+        payload.retry_after = error.retryAfter;
+      }
+
       console.error(JSON.stringify({
         event: 'lodgify_proxy_error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
+        status: error instanceof UpstreamError ? error.status : undefined
       }));
 
-      return withCors(jsonResponse({ error: 'Unable to load properties' }, 502), corsHeaders);
+      return withCors(jsonResponse(payload, status), corsHeaders);
     }
   }
 };
@@ -120,7 +138,7 @@ async function fetchJson(url, apiKey) {
   });
 
   if (!response.ok) {
-    throw new Error(`Lodgify request failed with status ${response.status}`);
+    throw new UpstreamError(response.status, response.headers.get('retry-after'));
   }
 
   return response.json();
