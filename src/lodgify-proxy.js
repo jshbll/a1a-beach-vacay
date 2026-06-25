@@ -1,20 +1,48 @@
+import { DurableObject } from 'cloudflare:workers';
+
 const LODGIFY_API_BASE = 'https://api.lodgify.com/v2';
 const DEFAULT_WEBSITE_ID = '410037';
 const CACHE_KEY = 'lodgify:properties:v1';
 const COOLDOWN_KEY = 'lodgify:refresh-cooldown:v1';
-const REFRESH_LOCK_KEY = 'lodgify:refresh-lock:v1';
 const DEFAULT_PUBLIC_CACHE_TTL_SECONDS = 60;
 const DEFAULT_STALE_WHILE_REVALIDATE_SECONDS = 300;
 const DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS = 900;
 const DEFAULT_ROOM_FETCH_CONCURRENCY = 1;
 const DEFAULT_ROOM_FETCH_DELAY_MS = 300;
-const LOCK_TTL_SECONDS = 120;
+const DEFAULT_PROPERTIES_PAGE_SIZE = 50;
+const DEFAULT_MAX_PROPERTIES_PAGES = 20;
 
 class UpstreamError extends Error {
   constructor(status, retryAfter) {
     super(`Lodgify request failed with status ${status}`);
     this.status = status;
     this.retryAfter = retryAfter;
+  }
+}
+
+export class RefreshCoordinator extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.refreshPromise = null;
+  }
+
+  async refresh(options = {}) {
+    if (this.refreshPromise) {
+      return {
+        ok: true,
+        refreshed: false,
+        reason: 'refresh_in_progress',
+        status: 202
+      };
+    }
+
+    this.refreshPromise = performRefreshCachedProperties(this.env, options);
+
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
+    }
   }
 }
 
@@ -78,12 +106,14 @@ export default {
     const cached = await readCachedProperties(env);
 
     if (!cached) {
+      const retryAfter = await getCacheMissRetryAfterSeconds(env);
+
       return withCors(jsonResponse({
         error: 'Properties cache is warming',
-        retry_after: 300
+        retry_after: retryAfter
       }, 503, {
         'cache-control': 'no-store',
-        'retry-after': '300',
+        'retry-after': String(retryAfter),
         'x-a1a-cache': 'miss'
       }), corsHeaders);
     }
@@ -99,6 +129,11 @@ export default {
 };
 
 async function refreshCachedProperties(env, options = {}) {
+  const coordinator = getRefreshCoordinator(env);
+  return coordinator.refresh(options);
+}
+
+async function performRefreshCachedProperties(env, options = {}) {
   const kv = getCacheBinding(env);
   const force = options.force === true;
   const cooldown = await readRefreshCooldown(env);
@@ -112,25 +147,6 @@ async function refreshCachedProperties(env, options = {}) {
       status: 202
     };
   }
-
-  const lock = await readJson(kv, REFRESH_LOCK_KEY);
-
-  if (!force && lock && isFutureIso(lock.until)) {
-    return {
-      ok: true,
-      refreshed: false,
-      reason: 'refresh_in_progress',
-      locked_until: lock.until,
-      status: 202
-    };
-  }
-
-  await writeJson(kv, REFRESH_LOCK_KEY, {
-    until: new Date(Date.now() + LOCK_TTL_SECONDS * 1000).toISOString(),
-    reason: options.reason || 'unknown'
-  }, {
-    expirationTtl: LOCK_TTL_SECONDS
-  });
 
   try {
     const payload = await fetchLodgifyProperties(env);
@@ -178,8 +194,6 @@ async function refreshCachedProperties(env, options = {}) {
       reason: 'refresh_failed',
       status: 502
     };
-  } finally {
-    await kv.delete(REFRESH_LOCK_KEY);
   }
 }
 
@@ -191,17 +205,8 @@ async function fetchLodgifyProperties(env) {
   }
 
   const websiteId = env.LODGIFY_WEBSITE_ID || DEFAULT_WEBSITE_ID;
-  const propertiesUrl = new URL(`${LODGIFY_API_BASE}/properties`);
-  propertiesUrl.searchParams.set('wid', websiteId);
-  propertiesUrl.searchParams.set('includeCount', 'false');
-  propertiesUrl.searchParams.set('includeInOut', 'false');
-  propertiesUrl.searchParams.set('page', '1');
-  propertiesUrl.searchParams.set('size', '50');
-
-  const data = await fetchJson(propertiesUrl, apiKey);
-  const activeListings = Array.isArray(data.items)
-    ? data.items.filter((listing) => listing.is_active === true)
-    : [];
+  const propertyItems = await fetchAllLodgifyPropertyItems(env, apiKey, websiteId);
+  const activeListings = propertyItems.filter((listing) => listing.is_active === true);
   const roomFetchDelayMs = getPositiveInt(env.ROOM_FETCH_DELAY_MS, DEFAULT_ROOM_FETCH_DELAY_MS);
   const roomFetchConcurrency = getPositiveInt(env.ROOM_FETCH_CONCURRENCY, DEFAULT_ROOM_FETCH_CONCURRENCY);
   const waitForRoomRequest = createSpacingThrottle(roomFetchDelayMs);
@@ -224,6 +229,43 @@ async function fetchLodgifyProperties(env) {
     count: items.length,
     items
   };
+}
+
+async function fetchAllLodgifyPropertyItems(env, apiKey, websiteId) {
+  const pageSize = Math.min(getPositiveInt(env.PROPERTIES_PAGE_SIZE, DEFAULT_PROPERTIES_PAGE_SIZE), 100);
+  const maxPages = getPositiveInt(env.MAX_PROPERTIES_PAGES, DEFAULT_MAX_PROPERTIES_PAGES);
+  const propertiesUrl = new URL(`${LODGIFY_API_BASE}/properties`);
+  const items = [];
+
+  propertiesUrl.searchParams.set('wid', websiteId);
+  propertiesUrl.searchParams.set('includeCount', 'true');
+  propertiesUrl.searchParams.set('includeInOut', 'false');
+  propertiesUrl.searchParams.set('size', String(pageSize));
+
+  for (let page = 1; page <= maxPages; page += 1) {
+    propertiesUrl.searchParams.set('page', String(page));
+
+    const data = await fetchJson(propertiesUrl, apiKey);
+
+    if (!Array.isArray(data.items)) {
+      throw new Error('Lodgify properties response did not include an items array.');
+    }
+
+    const pageItems = data.items;
+    const totalCount = getTotalCount(data);
+
+    items.push(...pageItems);
+
+    if (
+      pageItems.length === 0 ||
+      pageItems.length < pageSize ||
+      (Number.isFinite(totalCount) && items.length >= totalCount)
+    ) {
+      break;
+    }
+  }
+
+  return items;
 }
 
 async function fetchRoomDetails(propertyId, apiKey) {
@@ -302,6 +344,16 @@ async function readRefreshCooldown(env) {
   return cooldown;
 }
 
+async function getCacheMissRetryAfterSeconds(env) {
+  const cooldown = await readRefreshCooldown(env);
+
+  if (!cooldown) {
+    return 300;
+  }
+
+  return Math.max(1, Math.ceil((Date.parse(cooldown.until) - Date.now()) / 1000));
+}
+
 async function readJson(kv, key) {
   const value = await kv.get(key);
 
@@ -319,6 +371,15 @@ async function readJson(kv, key) {
 
 function writeJson(kv, key, value, options) {
   return kv.put(key, JSON.stringify(value), options);
+}
+
+function getRefreshCoordinator(env) {
+  if (!env.REFRESH_COORDINATOR) {
+    throw new Error('REFRESH_COORDINATOR Durable Object binding is not configured');
+  }
+
+  const websiteId = env.LODGIFY_WEBSITE_ID || DEFAULT_WEBSITE_ID;
+  return env.REFRESH_COORDINATOR.getByName(`lodgify:${websiteId}`);
 }
 
 function getCacheBinding(env) {
@@ -372,6 +433,11 @@ function getRetryAfterSeconds(retryAfter, env) {
   }
 
   return getPositiveInt(env.RATE_LIMIT_COOLDOWN_SECONDS, DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS);
+}
+
+function getTotalCount(data) {
+  const count = Number(data.count ?? data.total ?? data.total_count ?? data.totalCount);
+  return Number.isFinite(count) && count >= 0 ? count : null;
 }
 
 function getPositiveInt(value, fallback) {

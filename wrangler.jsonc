@@ -14,6 +14,20 @@
       "id": "82ebd2307ab548aea4c9cc325c9819bf"
     }
   ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "REFRESH_COORDINATOR",
+        "class_name": "RefreshCoordinator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["RefreshCoordinator"]
+    }
+  ],
   "triggers": {
     "crons": ["*/30 * * * *"]
   },
@@ -24,6 +38,8 @@
     "RATE_LIMIT_COOLDOWN_SECONDS": "900",
     "ROOM_FETCH_CONCURRENCY": "1",
     "ROOM_FETCH_DELAY_MS": "300",
+    "PROPERTIES_PAGE_SIZE": "50",
+    "MAX_PROPERTIES_PAGES": "20",
     "ALLOWED_ORIGINS": "https://www.a1abeachvacay.com,https://a1abeachvacay.com,http://localhost:8787,http://127.0.0.1:8787"
   }
 }

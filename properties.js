@@ -83,8 +83,7 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
 
 async function fetchListingsFromLodgify() {
     if (!LODGIFY_PROXY_ENDPOINT) {
-      console.error('A1A_LODGIFY_PROXY_ENDPOINT is not configured.');
-      return [];
+      throw new Error('A1A_LODGIFY_PROXY_ENDPOINT is not configured.');
     }
 
     try {
@@ -96,14 +95,17 @@ async function fetchListingsFromLodgify() {
         }
       });
       console.log('Fetched listings:', data);
-      const activeListings = Array.isArray(data.items)
-        ? data.items.filter(listing => listing.is_active !== false)
-        : [];
+
+      if (!Array.isArray(data.items)) {
+        throw new Error('Lodgify proxy response did not include an items array.');
+      }
+
+      const activeListings = data.items.filter(listing => listing.is_active !== false);
       console.log('Active listings:', activeListings.length);
       return activeListings;
     } catch (error) {
       console.error('Error fetching listings from Lodgify proxy:', error);
-      return [];
+      throw error;
     }    
   }
 
@@ -234,21 +236,24 @@ async function populateListings() {
   console.log('Populating listings...');
   showLoader();
 
+  const listingsContainerShortTerm = document.getElementById('listings-container');
+  const listingsContainerLongTerm = document.getElementById('listings-container-long-term');
+
+  if (!listingsContainerShortTerm || !listingsContainerLongTerm) {
+      console.error('Listings containers not found');
+      listingsInitialized = false;
+      hideLoader();
+      return;
+  }
+
+  listingsContainerShortTerm.innerHTML = '';
+  listingsContainerShortTerm.style.opacity = '0';
+
+  listingsContainerLongTerm.innerHTML = '';
+  listingsContainerLongTerm.style.opacity = '0';
+
   try {
       const listings = await fetchListingsFromLodgify();
-      const listingsContainerShortTerm = document.getElementById('listings-container');
-      const listingsContainerLongTerm = document.getElementById('listings-container-long-term');
-
-      if (!listingsContainerShortTerm || !listingsContainerLongTerm) {
-          console.error('Listings containers not found');
-          return;
-      }
-
-      listingsContainerShortTerm.innerHTML = '';
-      listingsContainerShortTerm.style.opacity = '0';
-
-      listingsContainerLongTerm.innerHTML = '';
-      listingsContainerLongTerm.style.opacity = '0';
 
       if (listings.length > 0) {
           console.log(`Processing ${listings.length} active listings`);
@@ -293,9 +298,19 @@ async function populateListings() {
   } catch (error) {
       listingsInitialized = false;
       console.error('Unexpected error while populating listings:', error);
+      showListingsLoadError(listingsContainerShortTerm, listingsContainerLongTerm);
   } finally {
       hideLoader();
   }
+}
+
+function showListingsLoadError(shortTermContainer, longTermContainer) {
+  const message = '<p>Unable to load listings right now. Please refresh the page or check back shortly.</p>';
+
+  shortTermContainer.innerHTML = message;
+  shortTermContainer.style.opacity = '1';
+  longTermContainer.innerHTML = message;
+  longTermContainer.style.opacity = '1';
 }
 
 async function populateListingsGroup(listingsGroup, container) {
